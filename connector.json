@@ -1,0 +1,17 @@
+{
+    "name": "communication-connector",  
+    "config": {  
+      "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+      "tasks.max": "1",  
+      "database.hostname": "mysql",  
+      "database.port": "3306",
+      "database.user": "root",
+      "database.password": "mysqlpass",
+      "database.server.id": "184054",  
+      "database.server.name": "dbserver1",  
+      "database.include.list": "communication",  
+      "database.history.kafka.bootstrap.servers": "kafka-1:9092,kafka-2:9092,kafka-3:9092",  
+      "database.history.kafka.topic": "schema-changes.communication",
+      "database.allowPublicKeyRetrieval": "true" 
+    }
+  }
