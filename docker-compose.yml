@@ -1,5 +1,27 @@
+---
+
 version: "3.8"
 services:
+
+  postgres:
+    image: debezium/postgres:11
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgresuser
+      POSTGRES_PASSWORD: postgrespass
+      POSTGRES_DB: inventory
+
+  mysql:
+    image: mysql:8
+    ports:
+      - 3306
+    environment:
+      MYSQL_USER: debezium
+      MYSQL_PASSWORD: debeziumpass
+      MYSQL_ROOT_PASSWORD: mysqlpass
+      MYSQL_DATABASE: inventory
+
   zookeeper-1:
     image: confluentinc/cp-zookeeper:5.0.0
     expose:
@@ -39,6 +61,7 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+
   kafka-1:
     image: confluentinc/cp-kafka:5.0.0
     expose:
@@ -47,6 +70,10 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
   kafka-2:
     image: confluentinc/cp-kafka:5.0.0
     expose:
@@ -55,6 +82,10 @@ services:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
   kafka-3:
     image: confluentinc/cp-kafka:5.0.0
     expose:
@@ -63,3 +94,24 @@ services:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9092
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+  
+  connect:
+    image: debezium/connect:1.4
+    ports:
+      - 8083:8083
+    environment:
+     BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+     GROUP_ID: 1
+     CONFIG_STORAGE_TOPIC: my_connect_configs
+     OFFSET_STORAGE_TOPIC: my_connect_offsets
+     STATUS_STORAGE_TOPIC: my_source_connect_statuses
+    depends_on:
+      - postgres
+      - mysql
+      - kafka-1
+      - kafka-2
+      - kafka-3
