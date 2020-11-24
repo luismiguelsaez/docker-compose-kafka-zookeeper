@@ -4,16 +4,6 @@ version: "3.8"
 
 services:
 
-  mysql:
-    image: mysql:8
-    ports:
-      - 3306
-    environment:
-      MYSQL_USER: debezium
-      MYSQL_PASSWORD: debeziumpass
-      MYSQL_ROOT_PASSWORD: mysqlpass
-      MYSQL_DATABASE: inventory
-
   zookeeper-1:
     image: confluentinc/cp-zookeeper:5.0.0
     expose:
@@ -91,6 +81,18 @@ services:
       - zookeeper-2
       - zookeeper-3
   
+  mysql:
+    image: mysql:8
+    ports:
+      - 3306
+    volumes:
+      - $PWD/sql:/data/scripts
+    environment:
+      MYSQL_USER: debezium
+      MYSQL_PASSWORD: debeziumpass
+      MYSQL_ROOT_PASSWORD: mysqlpass
+      MYSQL_DATABASE: inventory
+
   connect:
     image: debezium/connect:1.4
     ports:
@@ -102,7 +104,6 @@ services:
      OFFSET_STORAGE_TOPIC: my_connect_offsets
      STATUS_STORAGE_TOPIC: my_source_connect_statuses
     depends_on:
-      - postgres
       - mysql
       - kafka-1
       - kafka-2

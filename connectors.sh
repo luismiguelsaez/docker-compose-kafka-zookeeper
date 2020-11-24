@@ -19,5 +19,3 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
     "database.allowPublicKeyRetrieval": "true" 
   }
 }'
-
-curl -i -X GET -H "Accept:application/json" localhost:8083/connectors/inventory-connector
