@@ -90,8 +90,8 @@ services:
     environment:
       MYSQL_USER: debezium
       MYSQL_PASSWORD: debeziumpass
+      MYSQL_DATABASE: communication
       MYSQL_ROOT_PASSWORD: mysqlpass
-      MYSQL_DATABASE: inventory
 
   connect:
     image: debezium/connect:1.4

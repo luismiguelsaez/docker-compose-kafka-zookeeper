@@ -1,10 +1,11 @@
 
-CREATE TABLE IF NOT EXISTS objects (
+CREATE TABLE IF NOT EXISTS messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(20) NOT NULL
+    user VARCHAR(12) NOT NULL,
+    content VARCHAR(120) NOT NULL
 );
 
-INSERT INTO objects (name) VALUES ("obj1");
-INSERT INTO objects (name) VALUES ("obj2");
-INSERT INTO objects (name) VALUES ("obj3");
-INSERT INTO objects (name) VALUES ("obj4");
+INSERT INTO messages (user,content) VALUES ("john","Good morning all");
+INSERT INTO messages (user,content) VALUES ("sarah","Hello from Canada");
+INSERT INTO messages (user,content) VALUES ("paul","I'm experiencing connection issues");
+INSERT INTO messages (user,content) VALUES ("alice","Setting up my laptop");
