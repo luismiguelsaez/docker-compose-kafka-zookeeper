@@ -110,7 +110,7 @@ services:
     networks:
       - kafka
 
-  connect:
+  connector:
     image: debezium/connect:1.4
     ports:
       - 8083:8083
@@ -140,7 +140,11 @@ services:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: debezium
+      MYSQL_CONNECTOR_USER: root
+      MYSQL_CONNECTOR_PASS: mysqlpass
       MYSQL_PASS: debeziumpass
       MYSQL_DB: communication
+      CONNECTOR_ENDPOINT: connector
+      CONNECTOR_PORT: 8083
     networks:
       - kafka
