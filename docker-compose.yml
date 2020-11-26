@@ -129,11 +129,18 @@ services:
       - kafka
 
   setup:
-    build: app
+    build:
+      context: app
     depends_on:
       - mysql
     volumes:
       - $PWD/app/sql:/data/sql
       - $PWD/app/api:/data/api
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: debezium
+      MYSQL_PASS: debeziumpass
+      MYSQL_DB: communication
     networks:
       - kafka
