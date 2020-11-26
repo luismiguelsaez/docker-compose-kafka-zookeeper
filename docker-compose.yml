@@ -2,6 +2,9 @@
 
 version: "3.8"
 
+networks:
+  kafka:
+
 services:
 
   zookeeper-1:
@@ -17,6 +20,8 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+    networks:
+      - kafka
   zookeeper-2:
     image: confluentinc/cp-zookeeper:5.0.0
     expose:
@@ -30,6 +35,8 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+    networks:
+      - kafka
   zookeeper-3:
     image: confluentinc/cp-zookeeper:5.0.0
     expose:
@@ -43,6 +50,8 @@ services:
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+    networks:
+      - kafka
 
   kafka-1:
     image: confluentinc/cp-kafka:5.0.0
@@ -56,6 +65,8 @@ services:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
+    networks:
+      - kafka
   kafka-2:
     image: confluentinc/cp-kafka:5.0.0
     expose:
@@ -68,6 +79,8 @@ services:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
+    networks:
+      - kafka
   kafka-3:
     image: confluentinc/cp-kafka:5.0.0
     expose:
@@ -80,18 +93,22 @@ services:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
+    networks:
+      - kafka
   
   mysql:
-    image: mysql:8
+    image: mysql:5.7
     ports:
       - 3306
     volumes:
-      - $PWD/sql:/data/scripts
+      - $PWD/app/sql:/data/scripts
     environment:
       MYSQL_USER: debezium
       MYSQL_PASSWORD: debeziumpass
       MYSQL_DATABASE: communication
       MYSQL_ROOT_PASSWORD: mysqlpass
+    networks:
+      - kafka
 
   connect:
     image: debezium/connect:1.4
@@ -108,3 +125,15 @@ services:
       - kafka-1
       - kafka-2
       - kafka-3
+    networks:
+      - kafka
+
+  setup:
+    build: app
+    depends_on:
+      - mysql
+    volumes:
+      - $PWD/app/sql:/data/sql
+      - $PWD/app/api:/data/api
+    networks:
+      - kafka

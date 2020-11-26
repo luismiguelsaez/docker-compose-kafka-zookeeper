@@ -17,7 +17,7 @@ root@d48eb720ebe6:/# mysql -u debezium -p'debeziumpass' communication < /data/sc
 ## Create MySQL/Kafka connector
 
 ```
-curl -s -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ --data-binary "@connector.json"
+curl -s -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ --data-binary "@app/api/connector.json"
 ```
 
 ```
