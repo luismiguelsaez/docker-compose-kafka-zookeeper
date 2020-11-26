@@ -32,8 +32,7 @@ def mysqlSchema():
         port=int(MYSQL_PORT),
         user=MYSQL_USER,
         password=MYSQL_PASS,
-        database=MYSQL_DB,
-        auth_plugin="mysql_native_password"
+        database=MYSQL_DB
     )
 
     db_cursor = db_connection.cursor()
