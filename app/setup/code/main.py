@@ -68,10 +68,16 @@ def createConnector():
         print("Error creating endpoint [" + str(r.status_code) + "]: " + r.text)
 
 def main():
+
+    time.sleep(5)
     connWait(MYSQL_HOST,MYSQL_PORT)
     mysqlSchema()
-    createConnector()
+
+    time.sleep(5)
     connWait(CONNECTOR_ENDPOINT,"8083")
+    createConnector()
+
+
 
 if __name__ == '__main__':
     main()

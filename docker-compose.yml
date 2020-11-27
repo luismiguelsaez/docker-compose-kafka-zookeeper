@@ -131,7 +131,7 @@ services:
 
   setup:
     build:
-      context: app
+      context: app/setup
     depends_on:
       - mysql
     volumes:
