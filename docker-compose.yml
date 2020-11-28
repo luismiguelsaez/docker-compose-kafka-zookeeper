@@ -9,6 +9,11 @@ services:
 
   zookeeper-1:
     image: confluentinc/cp-zookeeper:5.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '100m'
     expose:
       - 2181
       - 2888
@@ -24,6 +29,11 @@ services:
       - kafka
   zookeeper-2:
     image: confluentinc/cp-zookeeper:5.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '100m'
     expose:
       - 2181
       - 2888
@@ -39,6 +49,11 @@ services:
       - kafka
   zookeeper-3:
     image: confluentinc/cp-zookeeper:5.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '100m'
     expose:
       - 2181
       - 2888
@@ -55,6 +70,11 @@ services:
 
   kafka-1:
     image: confluentinc/cp-kafka:5.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '500m'
     expose:
       - 9092
     environment:
@@ -69,6 +89,11 @@ services:
       - kafka
   kafka-2:
     image: confluentinc/cp-kafka:5.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '500m'
     expose:
       - 9092
     environment:
@@ -83,6 +108,11 @@ services:
       - kafka
   kafka-3:
     image: confluentinc/cp-kafka:5.0.0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '500m'
     expose:
       - 9092
     environment:
@@ -99,6 +129,11 @@ services:
   mysql:
     image: mysql:8
     command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '500m'
     ports:
       - 3306
     volumes:
@@ -113,6 +148,11 @@ services:
 
   connector:
     image: debezium/connect:1.4
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: '1000m'
     ports:
       - 8083:8083
     environment:
@@ -135,8 +175,8 @@ services:
     depends_on:
       - mysql
     volumes:
-      - $PWD/app/sql:/data/sql
-      - $PWD/app/api:/data/api
+      - $PWD/app/setup/sql:/data/sql
+      - $PWD/app/setup/api:/data/api
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306

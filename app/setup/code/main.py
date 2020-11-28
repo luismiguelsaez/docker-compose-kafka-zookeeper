@@ -27,23 +27,35 @@ def connWait(whost,wport):
 
 def mysqlSchema():
 
-    db_connection = mysql.connector.connect(
-        host=MYSQL_HOST,
-        port=int(MYSQL_PORT),
-        user=MYSQL_USER,
-        password=MYSQL_PASS,
-        database=MYSQL_DB
-    )
+    try:
+        db_connection = mysql.connector.connect(
+            host=MYSQL_HOST,
+            port=int(MYSQL_PORT),
+            user=MYSQL_USER,
+            password=MYSQL_PASS,
+            database=MYSQL_DB
+        )
+    except connexc:
+        print("Error while connecting to database")
+        return False
 
-    db_cursor = db_connection.cursor()
+    try:
+        db_cursor = db_connection.cursor()
 
-    with open('/data/sql/schema-setup.sql') as fp:
-        line = fp.readline()
-        while line:
-            if len(line) > 2:
-                print("Executing line: " + line)
-                db_cursor.execute(line)
+        with open('/data/sql/schema-setup.sql') as fp:
             line = fp.readline()
+            while line:
+                if len(line) > 2:
+                    print("Executing line: " + line)
+                    db_cursor.execute(line)
+                line = fp.readline()
+
+        db_connection.commit()
+    except:
+        print("Error loading data")
+        return False
+
+    return True
 
 def createConnector():
 
