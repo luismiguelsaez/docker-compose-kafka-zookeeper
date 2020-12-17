@@ -125,67 +125,113 @@ services:
       - zookeeper-3
     networks:
       - kafka
-  
-  mysql:
-    image: mysql:8
-    command: --default-authentication-plugin=mysql_native_password
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: '500m'
-    ports:
-      - 3306
-    volumes:
-      - $PWD/app/sql:/data/scripts
-    environment:
-      MYSQL_USER: debezium
-      MYSQL_PASSWORD: debeziumpass
-      MYSQL_DATABASE: communication
-      MYSQL_ROOT_PASSWORD: mysqlpass
-    networks:
-      - kafka
 
-  connector:
-    image: debezium/connect:1.4
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: '1000m'
-    ports:
-      - 8083:8083
+  schema-registry:
+    image: confluentinc/cp-schema-registry:6.0.1
+    expose:
+      - 8081
     environment:
-     BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
-     GROUP_ID: 1
-     CONFIG_STORAGE_TOPIC: my_connect_configs
-     OFFSET_STORAGE_TOPIC: my_connect_offsets
-     STATUS_STORAGE_TOPIC: my_source_connect_statuses
+      # https://docs.confluent.io/platform/current/schema-registry/installation/config.html#schemaregistry-config
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
     depends_on:
-      - mysql
       - kafka-1
       - kafka-2
       - kafka-3
     networks:
       - kafka
 
-  setup:
-    build:
-      context: app/setup
-    depends_on:
-      - mysql
-    volumes:
-      - $PWD/app/setup/sql:/data/sql
-      - $PWD/app/setup/api:/data/api
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.14.0
+    expose:
+      - 8088
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_USER: debezium
-      MYSQL_CONNECTOR_USER: root
-      MYSQL_CONNECTOR_PASS: mysqlpass
-      MYSQL_PASS: debeziumpass
-      MYSQL_DB: communication
-      CONNECTOR_ENDPOINT: connector
-      CONNECTOR_PORT: 8083
+      # https://docs.confluent.io/platform/current/ksqldb/installing.html
+      # https://docs.ksqldb.io/en/0.10.2-ksqldb/operate-and-deploy/installation/server-config/config-reference
+      KSQL_LISTENERS: http://0.0.0.0:8088
+      KSQL_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
     networks:
       - kafka
+
+  # docker-compose exec ksqldb-cli ksql http://ksqldb-server:8088
+  ksqldb-cli:
+    image: confluentinc/ksqldb-cli:0.14.0
+    depends_on:
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true
+    networks:
+      - kafka
+
+  #mysql:
+  #  image: mysql:8
+  #  command: --default-authentication-plugin=mysql_native_password
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        cpus: '0.25'
+  #        memory: '500m'
+  #  ports:
+  #    - 3306
+  #  volumes:
+  #    - $PWD/app/sql:/data/scripts
+  #  environment:
+  #    MYSQL_USER: debezium
+  #    MYSQL_PASSWORD: debeziumpass
+  #    MYSQL_DATABASE: communication
+  #    MYSQL_ROOT_PASSWORD: mysqlpass
+  #  networks:
+  #    - kafka
+#
+  #connector:
+  #  image: debezium/connect:1.4
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        cpus: '0.25'
+  #        memory: '1000m'
+  #  ports:
+  #    - 8083:8083
+  #  environment:
+  #   BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+  #   GROUP_ID: 1
+  #   CONFIG_STORAGE_TOPIC: my_connect_configs
+  #   OFFSET_STORAGE_TOPIC: my_connect_offsets
+  #   STATUS_STORAGE_TOPIC: my_source_connect_statuses
+  #  depends_on:
+  #    - mysql
+  #    - kafka-1
+  #    - kafka-2
+  #    - kafka-3
+  #  networks:
+  #    - kafka
+#
+  #setup:
+  #  build:
+  #    context: app/setup
+  #  depends_on:
+  #    - mysql
+  #  volumes:
+  #    - $PWD/app/setup/sql:/data/sql
+  #    - $PWD/app/setup/api:/data/api
+  #  environment:
+  #    MYSQL_HOST: mysql
+  #    MYSQL_PORT: 3306
+  #    MYSQL_USER: debezium
+  #    MYSQL_CONNECTOR_USER: root
+  #    MYSQL_CONNECTOR_PASS: mysqlpass
+  #    MYSQL_PASS: debeziumpass
+  #    MYSQL_DB: communication
+  #    CONNECTOR_ENDPOINT: connector
+  #    CONNECTOR_PORT: 8083
+  #  networks:
+  #    - kafka
+#
